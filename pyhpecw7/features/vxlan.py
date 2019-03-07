@@ -180,6 +180,33 @@ class Vxlan(object):
             'vxlan': 'VxlanID'
         }
 
+    def gen_top(self):
+        E = data_element_maker()
+        top = E.top(
+            E.VXLAN(
+                E.VXLANs(
+                    E.Vxlan(
+                        E.VxlanID()
+                    )
+                )
+            )
+        )
+
+        return top
+
+    def get_vxlan_list(self):
+
+        """Get a list of VXLAN IDs that exist on the switch.
+        Returns:
+            It returns a list of VXLAN IDs as strings.
+        """
+        top = self.gen_top()
+        nc_get_reply = self.device.get(('subtree', top))
+        vxlans_xml = findall_in_data('VxlanID', nc_get_reply.data_ele)
+        vxlan_list = [vxlan.text for vxlan in vxlans_xml]
+
+        return vxlan_list
+
     def get_config(self):
         """Get associated VSI for a given VXLAN ID along with configured
         tunnels for that given VXLAN/VSI mapping.
